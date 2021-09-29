@@ -688,8 +688,10 @@
                         break;
                     case 'startUpload':
                         /* 添加额外的GET参数 */
-                        var params = utils.serializeParam(editor.queryCommandValue('serverparam')) || '',
-                            url = utils.formatUrl(actionUrl + (actionUrl.indexOf('?') == -1 ? '?':'&') + 'encode=utf-8&' + params);
+                        // var params = utils.serializeParam(editor.queryCommandValue('serverparam')) || '',
+                        //     url = utils.formatUrl(actionUrl + (actionUrl.indexOf('?') == -1 ? '?':'&') + 'encode=utf-8&' + params);
+                        /** 不需要额外的参数 */
+                        var url = utils.formatUrl(actionUrl);
                         uploader.option('server', url);
                         setState('uploading', files);
                         break;
@@ -699,7 +701,19 @@
                 }
             });
 
+            /** LyS - 从cookie中获取token */
+            function getToken() {
+                var cookieArr = window.document.cookie.split(';');
+                var tokenArr = cookieArr.filter(function(str){return str.indexOf('Admin-Token=') > -1});
+                if (tokenArr.length) {
+                    return tokenArr[0].split('=')[1].trim()
+                }
+                return ''
+            }
+
             uploader.on('uploadBeforeSend', function (file, data, header) {
+                /** LyS - 上传之前，添加token */
+                header['Authorization'] = 'Bearer ' + getToken();
                 //这里可以通过data对象添加POST参数
                 if (actionUrl.toLowerCase().indexOf('jsp') != -1) {
                     header['X-Requested-With'] = 'XMLHttpRequest';
@@ -720,8 +734,9 @@
                 try {
                     var responseText = (ret._raw || ret),
                         json = utils.str2json(responseText);
-                    if (json.state == 'SUCCESS') {
-                        _this.imageList.push(json);
+                    /** code为200表示请求成功，data中包含{name, url} */
+                    if (json.code === 200) {
+                        _this.imageList.push(json.data);
                         $file.append('<span class="success"></span>');
                     } else {
                         $file.find('.error').text(json.state).show();
