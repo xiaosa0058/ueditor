@@ -17,6 +17,7 @@ node/upload
 *.doc
 *.docx
 *.xml
+package-lock.json
 
 
 
