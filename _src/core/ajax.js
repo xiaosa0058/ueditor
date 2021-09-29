@@ -63,9 +63,17 @@ UE.ajax = (function() {
   /** LyS - 从cookie中获取token */
   function getToken() {
     var cookieArr = window.document.cookie.split(';');
-    var tokenArr = cookieArr.filter(str => str.indexOf('Admin-Token=') > -1);
-    if (tokenArr.length) {
-        return tokenArr[0].split('=')[1].trim()
+    if (cookieArr && cookieArr.length) {
+      var tokenStr = '';
+      for (var i = 0; i < cookieArr.length; i++) {
+        if (cookieArr[i].indexOf('Admin-Token=') > -1) {
+          tokenStr = cookieArr[i];
+          break
+        }
+      }
+      if (tokenStr) {
+        return tokenStr.split('=')[1].trim()
+      }
     }
     return ''
   }
