@@ -60,6 +60,16 @@ UE.ajax = (function() {
     return strArr.join("&");
   }
 
+  /** LyS - 从cookie中获取token */
+  function getToken() {
+    var cookieArr = window.document.cookie.split(';');
+    var tokenArr = cookieArr.filter(str => str.indexOf('Admin-Token=') > -1);
+    if (tokenArr.length) {
+        return tokenArr[0].split('=')[1].trim()
+    }
+    return ''
+  }
+
   function doAjax(url, ajaxOptions) {
     var xhr = creatAjaxRequest(),
       //是否超时
@@ -112,6 +122,8 @@ UE.ajax = (function() {
         }
       }
     };
+    /** LyS - 在headers中添加token信息 */
+    xhr.setRequestHeader("Authorization", 'Bearer ' + getToken());
     if (method == "POST") {
       xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
       xhr.send(submitStr);
